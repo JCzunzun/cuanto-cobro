@@ -18,22 +18,24 @@ export function Field({ label, hint, value, onChange, min, max, step, unit }: Pr
 
   return (
     <div className="field">
-      <div className="field-head">
+      <div className="field-text">
         <label htmlFor={id}>{label}</label>
-        <span className="field-input">
-          <input
-            id={id}
-            type="number"
-            inputMode="numeric"
-            min={min}
-            step={step}
-            value={Number.isFinite(value) ? value : ""}
-            onChange={(e) => onChange(Math.max(0, e.target.valueAsNumber || 0))}
-          />
-          <span className="unit">{unit}</span>
-        </span>
+        {hint && <p className="field-hint">{hint}</p>}
       </div>
+      <span className="amount-input">
+        <input
+          id={id}
+          type="number"
+          inputMode="numeric"
+          min={min}
+          step={step}
+          value={Number.isFinite(value) ? value : ""}
+          onChange={(e) => onChange(Math.max(0, e.target.valueAsNumber || 0))}
+        />
+        <span className="unit">{unit}</span>
+      </span>
       <input
+        className="range"
         type="range"
         aria-label={label}
         min={min}
@@ -43,7 +45,6 @@ export function Field({ label, hint, value, onChange, min, max, step, unit }: Pr
         style={{ "--p": `${progress}%` } as CSSProperties}
         onChange={(e) => onChange(e.target.valueAsNumber)}
       />
-      {hint && <p className="field-hint">{hint}</p>}
     </div>
   );
 }

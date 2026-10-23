@@ -15,10 +15,13 @@ export function PlanForm({ plan, onChange }: Props) {
   const set = <K extends keyof Plan>(key: K, value: Plan[K]) => onChange({ ...plan, [key]: value });
 
   return (
-    <form className="plan" onSubmit={(e) => e.preventDefault()}>
+    <form className="plan" aria-labelledby="plan-title" onSubmit={(e) => e.preventDefault()}>
+      <h2 id="plan-title" className="col-title">
+        Tus números
+      </h2>
       <Field
         label="Quiero que me queden al mes"
-        hint="Limpio, después de impuestos y cuota. Como un sueldo neto en 12 pagas."
+        hint="Limpio, como un sueldo neto en 12 pagas."
         value={plan.netMonthly}
         onChange={(v) => set("netMonthly", v)}
         min={800}
@@ -54,11 +57,11 @@ export function PlanForm({ plan, onChange }: Props) {
         min={0}
         max={12}
         step={1}
-        unit="sem"
+        unit="sem."
       />
 
-      <fieldset className="choice">
-        <legend>¿Dónde tienes tu domicilio fiscal?</legend>
+      <fieldset className="field choice">
+        <legend>Domicilio fiscal</legend>
         <div className="segmented">
           {REGIONS.map((r) => (
             <label key={r.value}>
@@ -75,12 +78,13 @@ export function PlanForm({ plan, onChange }: Props) {
         </div>
       </fieldset>
 
-      <label className="toggle">
+      <label className="field toggle">
+        <span className="field-text">
+          <span className="toggle-label">Tarifa plana</span>
+          <span className="field-hint">Primer año como autónomo: 80 € al mes de cuota.</span>
+        </span>
         <input type="checkbox" checked={plan.flatRate} onChange={(e) => set("flatRate", e.target.checked)} />
         <span className="toggle-track" aria-hidden="true" />
-        <span>
-          Estoy en mi primer año con tarifa plana <small>(80 € al mes de cuota)</small>
-        </span>
       </label>
     </form>
   );
