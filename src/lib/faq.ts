@@ -27,7 +27,7 @@ export const FAQS: Faq[] = [
   {
     id: "festivos",
     q: "¿Cómo cuenta los festivos?",
-    a: "Con el calendario laboral oficial de 2027: los festivos nacionales y los de tu comunidad que caen de lunes a viernes, más los dos festivos locales de tu ayuntamiento. En Canarias suma también el festivo de tu isla.",
+    a: "Con el calendario laboral oficial del año que toca planificar: los festivos nacionales y los de tu comunidad que caen de lunes a viernes, más los dos locales de tu ayuntamiento. En Canarias suma también el festivo de tu isla. Cada 15 de octubre pasa solo al año siguiente.",
   },
   {
     id: "iva",

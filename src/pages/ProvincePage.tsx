@@ -82,6 +82,8 @@ export function ProvincePage({ data }: { data: ProvinceData }) {
         <p>
           Son {holidays.total} días en los que no facturas: los nacionales y los de {communityName}, más los dos locales
           de tu ayuntamiento{holidays.extra > 0 ? ` y ${holidays.community.extra?.note}` : ""}.
+          {!holidays.official &&
+            ` Los ${holidays.pendingRegional} autonómicos de ${HOLIDAY_YEAR} aún no se han publicado y se estiman.`}
         </p>
         <ul className="dates">
           {holidays.weekdayHolidays.map((h) => (

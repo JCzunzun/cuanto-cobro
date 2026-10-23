@@ -37,7 +37,7 @@ export function planFromSearch(search: string, base: Plan): Plan {
 // Solo escribe lo que difiere de los valores por defecto, así la URL queda corta.
 export function searchFromPlan(plan: Plan, base: Plan): string {
   const params = new URLSearchParams();
-  for (const key of Object.keys(KEYS) as (keyof Plan)[]) {
+  for (const key of Object.keys(KEYS) as (keyof typeof KEYS)[]) {
     if (plan[key] === base[key]) continue;
     params.set(KEYS[key], typeof plan[key] === "boolean" ? (plan[key] ? "1" : "0") : String(plan[key]));
   }

@@ -17,8 +17,8 @@ const FIGURES = [
   },
   {
     term: "Festivos",
-    text: `Los nacionales y los de tu comunidad de ${HOLIDAY_YEAR} que caen entre semana, más los dos locales que fija cada ayuntamiento. Los que caen en fin de semana no restan días.`,
-    source: "BOE de 13 de octubre de 2026",
+    text: `Los nacionales y los de tu comunidad de ${HOLIDAY_YEAR} que caen entre semana, más los dos locales que fija cada ayuntamiento. Los que caen en fin de semana no restan días. El año cambia solo cada 15 de octubre, cuando se publica el calendario siguiente.`,
+    source: "Calendario laboral oficial (BOE)",
   },
   {
     term: "Comunidad",

@@ -1,5 +1,5 @@
 import { useId } from "react";
-import { COMMUNITIES, HOLIDAY_YEAR, PROVINCES, holidaysFor, type CommunityId } from "../lib/holidays";
+import { COMMUNITIES, PROVINCES, holidaysFor, type CommunityId } from "../lib/holidays";
 import type { Plan } from "../lib/tax";
 import { Field } from "./Field";
 
@@ -19,9 +19,9 @@ const dateFormat = new Intl.DateTimeFormat("es-ES", {
   month: "short",
   timeZone: "UTC",
 });
-const formatDate = (mmdd: string) => {
+const formatDate = (year: number, mmdd: string) => {
   const [m, d] = mmdd.split("-").map(Number);
-  return dateFormat.format(new Date(Date.UTC(HOLIDAY_YEAR, m - 1, d)));
+  return dateFormat.format(new Date(Date.UTC(year, m - 1, d)));
 };
 
 export function PlanForm({ plan, onChange }: Props) {
@@ -95,15 +95,21 @@ export function PlanForm({ plan, onChange }: Props) {
         </span>
         <details className="holidays">
           <summary>
-            <strong>{holidays.total} festivos</strong> entre semana en {HOLIDAY_YEAR}
+            <strong>{holidays.total} festivos</strong> entre semana en {holidays.year}
           </summary>
           <ul>
             {holidays.weekdayHolidays.map((h) => (
               <li key={h.date}>
-                <span>{formatDate(h.date)}</span>
+                <span>{formatDate(holidays.year, h.date)}</span>
                 {h.name}
               </li>
             ))}
+            {holidays.pendingRegional > 0 && (
+              <li>
+                <span>+{holidays.pendingRegional}</span>
+                festivos autonómicos (aún sin publicar)
+              </li>
+            )}
             {holidays.extra > 0 && (
               <li>
                 <span>+{holidays.extra}</span>
@@ -115,7 +121,11 @@ export function PlanForm({ plan, onChange }: Props) {
               festivos locales de tu ayuntamiento
             </li>
           </ul>
-          <p>Los que caen en sábado o domingo no se cuentan: ese día no ibas a facturar igualmente.</p>
+          <p>
+            {holidays.official
+              ? "Los que caen en sábado o domingo no se cuentan: ese día no ibas a facturar igualmente."
+              : `El calendario oficial de ${holidays.year} se publica en el BOE en octubre. Hasta entonces, los autonómicos se estiman.`}
+          </p>
         </details>
       </div>
 

@@ -1,0 +1,50 @@
+# Cada lunes:
+# 1. Reconstruye la web en Vercel, para que las páginas estáticas cambien de año solas.
+# 2. Comprueba que el calendario oficial de festivos del año que toca está cargado y,
+#    si falta, abre un aviso en el repo con lo que hay que hacer.
+name: Festivos y reconstrucción semanal
+
+on:
+  schedule:
+    - cron: "17 5 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  festivos:
+    runs-on: ubuntu-latest
+    env:
+      DEPLOY_HOOK: ${{ secrets.VERCEL_DEPLOY_HOOK }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Reconstruir la web en Vercel
+        if: env.DEPLOY_HOOK != ''
+        run: curl -fsS -X POST "$DEPLOY_HOOK" > /dev/null
+
+      - name: Comprobar el calendario oficial
+        id: check
+        run: node scripts/check-holidays.mjs >> "$GITHUB_OUTPUT"
+
+      - name: Avisar si falta
+        if: steps.check.outputs.missing != ''
+        env:
+          GH_TOKEN: ${{ github.token }}
+          YEAR: ${{ steps.check.outputs.missing }}
+        run: |
+          title="Cargar los festivos oficiales de $YEAR"
+          open=$(gh issue list --state open --search "\"$title\" in:title" --json number --jq 'length')
+          if [ "$open" = "0" ]; then
+            gh issue create --title "$title" --body "La calculadora ya planifica $YEAR, pero los festivos autonómicos se están estimando.
+
+          1. Buscar en el BOE la resolución de la Dirección General de Trabajo con la relación de fiestas laborales para $YEAR (se publica a mediados de octubre).
+          2. Añadir el año en \`OFFICIAL_REGIONAL\` de \`src/lib/holidays.ts\` copiando el bloque del año anterior.
+          3. Hacer push: Vercel despliega solo y este aviso se puede cerrar."
+          fi

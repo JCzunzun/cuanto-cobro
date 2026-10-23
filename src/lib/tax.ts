@@ -1,4 +1,4 @@
-import { findProvince, holidaysFor, weekdaysInYear, type HolidaySummary } from "./holidays";
+import { HOLIDAY_YEAR, findProvince, holidaysFor, weekdaysInYear, type HolidaySummary } from "./holidays";
 
 // Cifras de 2026.
 // Cuota de autónomos: Orden PJC/297/2026 (BOE-A-2026-7296), art. 18.
@@ -156,6 +156,8 @@ export interface Plan {
   vacationWeeks: number;
   province: string;
   flatRate: boolean;
+  // Año de los festivos. Si no se indica, el que toca planificar hoy.
+  year?: number;
 }
 
 export interface Quote extends YearResult {
@@ -178,11 +180,14 @@ function settingsOf(p: Plan): Settings {
 }
 
 // Días que de verdad trabajas: lunes a viernes, menos festivos entre semana y vacaciones.
-export function workingDays(p: Pick<Plan, "vacationWeeks" | "province">): number {
-  return Math.max(1, weekdaysInYear() - holidaysFor(p.province).total - p.vacationWeeks * 5);
+export function workingDays(p: Pick<Plan, "vacationWeeks" | "province" | "year">): number {
+  const year = p.year ?? HOLIDAY_YEAR;
+  return Math.max(1, weekdaysInYear(year) - holidaysFor(p.province, year).total - p.vacationWeeks * 5);
 }
 
-export function billableHoursPerYear(p: Pick<Plan, "billableHoursWeek" | "vacationWeeks" | "province">): number {
+export function billableHoursPerYear(
+  p: Pick<Plan, "billableHoursWeek" | "vacationWeeks" | "province" | "year">,
+): number {
   return Math.max(1, (workingDays(p) * p.billableHoursWeek) / 5);
 }
 
@@ -193,7 +198,7 @@ export function quote(p: Plan): Quote {
   return {
     ...year,
     workingDays: workingDays(p),
-    holidays: holidaysFor(p.province),
+    holidays: holidaysFor(p.province, p.year ?? HOLIDAY_YEAR),
     billableHours,
     hourly,
     daily: hourly * HOURS_PER_DAY,

@@ -19,6 +19,7 @@ const plan: Plan = {
   vacationWeeks: 4,
   province: "madrid",
   flatRate: false,
+  year: 2027,
 };
 
 describe("IRPF", () => {
