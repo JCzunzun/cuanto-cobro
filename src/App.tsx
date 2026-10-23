@@ -5,14 +5,24 @@ import { Hero } from "./components/Hero";
 import { Ledger } from "./components/Ledger";
 import { PlanForm } from "./components/PlanForm";
 import { PriceBar } from "./components/PriceBar";
+import { SiteFooter, SiteHeader } from "./components/SiteChrome";
+import { Explore } from "./components/Explore";
 import { DEFAULT_PLAN } from "./lib/defaults";
 import { quote } from "./lib/tax";
+import { planFromSearch, searchFromPlan } from "./lib/urlState";
 
 export default function App() {
-  const [plan, setPlan] = useState(DEFAULT_PLAN);
+  const [plan, setPlan] = useState(() =>
+    typeof window === "undefined" ? DEFAULT_PLAN : planFromSearch(window.location.search, DEFAULT_PLAN),
+  );
   const result = useMemo(() => quote(plan), [plan]);
   const ledger = useRef<HTMLDivElement>(null);
   const [ledgerVisible, setLedgerVisible] = useState(true);
+
+  useEffect(() => {
+    const url = `${window.location.pathname}${searchFromPlan(plan, DEFAULT_PLAN)}${window.location.hash}`;
+    window.history.replaceState(null, "", url);
+  }, [plan]);
 
   useEffect(() => {
     const el = ledger.current;
@@ -24,17 +34,10 @@ export default function App() {
 
   return (
     <>
-      <div className="topbar">
-        <div className="wrap">
-          <a href="https://camilab.es" className="brand">
-            camilab
-          </a>
-          <a href="https://verifactu.camilab.es">¿Me toca Verifactu?</a>
-        </div>
-      </div>
+      <SiteHeader />
       <Hero />
       <main>
-        <section className="calc" aria-label="Calculadora">
+        <section className="calc" id="calculadora" aria-label="Calculadora">
           <div className="wrap calc-grid">
             <PlanForm plan={plan} onChange={setPlan} />
             <div ref={ledger} className="calc-result">
@@ -44,18 +47,9 @@ export default function App() {
         </section>
         <Figures />
         <FaqList />
+        <Explore />
       </main>
-      <footer className="footer">
-        <div className="wrap">
-          <p>
-            Calculadora orientativa. No sustituye el consejo de tu asesor fiscal. Lo que escribes no sale de tu
-            navegador.
-          </p>
-          <p>
-            Hecho por Juan Camilo Zúñiga · <a href="https://camilab.es">camilab.es</a>
-          </p>
-        </div>
-      </footer>
+      <SiteFooter />
       <PriceBar hourly={result.hourly} hidden={ledgerVisible} />
     </>
   );
