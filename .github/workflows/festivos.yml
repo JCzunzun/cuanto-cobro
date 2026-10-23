@@ -42,7 +42,7 @@ jobs:
           title="Cargar los festivos oficiales de $YEAR"
           open=$(gh issue list --state open --search "\"$title\" in:title" --json number --jq 'length')
           if [ "$open" = "0" ]; then
-            gh issue create --title "$title" --body "La calculadora ya planifica $YEAR, pero los festivos autonómicos se están estimando.
+            gh issue create --title "$title" --body "Falta el calendario oficial de $YEAR. Sin él, la calculadora estima los festivos autonómicos de ese año (cambia de año cada 1 de enero).
 
           1. Buscar en el BOE la resolución de la Dirección General de Trabajo con la relación de fiestas laborales para $YEAR (se publica a mediados de octubre).
           2. Añadir el año en \`OFFICIAL_REGIONAL\` de \`src/lib/holidays.ts\` copiando el bloque del año anterior.

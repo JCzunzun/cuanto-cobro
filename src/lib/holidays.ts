@@ -15,12 +15,9 @@ export interface Holiday {
   name: string;
 }
 
-// El calendario del año siguiente se publica a mediados de octubre: desde el 15 de
-// octubre la calculadora ya planifica el año que viene.
+// La calculadora planifica el año en curso: pasa al siguiente el 1 de enero.
 export function planningYear(now: Date = new Date()): number {
-  const year = now.getFullYear();
-  const fromOctober15 = now.getMonth() > 9 || (now.getMonth() === 9 && now.getDate() >= 15);
-  return fromOctober15 ? year + 1 : year;
+  return now.getFullYear();
 }
 
 // Año que usa la web. En el navegador es el del día en que se abre; en el build,
@@ -179,6 +176,54 @@ export function findProvince(id: string): Province {
 // Festivos propios de cada comunidad (incluidos los traslados), según el calendario oficial.
 // Para añadir un año: copiar el bloque y rellenarlo con la resolución del BOE de octubre.
 const OFFICIAL_REGIONAL: Record<number, Record<CommunityId, Holiday[]>> = {
+  // Resolución de 17 de octubre de 2025 de la Dirección General de Trabajo (BOE de 28 de octubre de 2025).
+  2026: (() => {
+    const juevesSanto = { date: "04-02", name: "Jueves Santo" };
+    const sanJose = { date: "03-19", name: "San José" };
+    const lunesPascua = { date: "04-06", name: "Lunes de Pascua" };
+    const sanJuan = { date: "06-24", name: "San Juan" };
+    const sanEsteban = { date: "12-26", name: "San Esteban" };
+    const santos = { date: "11-02", name: "Lunes siguiente a Todos los Santos" };
+    const constitucion = { date: "12-07", name: "Lunes siguiente al Día de la Constitución" };
+    const sacrificio = { date: "05-27", name: "Fiesta del Sacrificio" };
+    return {
+      andalucia: [{ date: "02-28", name: "Día de Andalucía" }, juevesSanto, santos, constitucion],
+      aragon: [juevesSanto, { date: "04-23", name: "Día de Aragón" }, santos, constitucion],
+      asturias: [juevesSanto, { date: "09-08", name: "Día de Asturias" }, santos, constitucion],
+      baleares: [
+        { date: "03-02", name: "Lunes siguiente al Día de les Illes Balears" },
+        juevesSanto,
+        lunesPascua,
+        sanEsteban,
+      ],
+      canarias: [juevesSanto, { date: "05-30", name: "Día de Canarias" }, santos],
+      cantabria: [
+        juevesSanto,
+        { date: "07-28", name: "Día de las Instituciones" },
+        { date: "09-15", name: "La Bien Aparecida" },
+        constitucion,
+      ],
+      "castilla-leon": [juevesSanto, { date: "04-23", name: "Fiesta de Castilla y León" }, santos, constitucion],
+      "castilla-la-mancha": [juevesSanto, lunesPascua, { date: "06-04", name: "Corpus Christi" }, santos],
+      cataluna: [lunesPascua, sanJuan, { date: "09-11", name: "Diada" }, sanEsteban],
+      valencia: [sanJose, lunesPascua, sanJuan, { date: "10-09", name: "Día de la Comunitat Valenciana" }],
+      extremadura: [juevesSanto, { date: "09-08", name: "Día de Extremadura" }, santos, constitucion],
+      galicia: [sanJose, juevesSanto, sanJuan, { date: "07-25", name: "Día Nacional de Galicia" }],
+      madrid: [juevesSanto, { date: "05-02", name: "Fiesta de la Comunidad de Madrid" }, santos, constitucion],
+      murcia: [sanJose, juevesSanto, { date: "06-09", name: "Día de la Región de Murcia" }, constitucion],
+      navarra: [sanJose, juevesSanto, lunesPascua, santos],
+      "pais-vasco": [sanJose, juevesSanto, lunesPascua, { date: "07-25", name: "Santiago Apóstol" }],
+      rioja: [juevesSanto, lunesPascua, { date: "06-09", name: "Día de La Rioja" }, constitucion],
+      ceuta: [
+        juevesSanto,
+        sacrificio,
+        { date: "08-05", name: "Nuestra Señora de África" },
+        { date: "09-02", name: "Día de Ceuta" },
+      ],
+      melilla: [{ date: "03-20", name: "Fiesta del Eid al-Fitr" }, juevesSanto, sacrificio, constitucion],
+    };
+  })(),
+
   // Resolución de 8 de octubre de 2026 de la Dirección General de Trabajo (BOE de 13 de octubre de 2026).
   2027: (() => {
     const juevesSanto = { date: "03-25", name: "Jueves Santo" };
