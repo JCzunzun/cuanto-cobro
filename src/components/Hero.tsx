@@ -1,4 +1,5 @@
 import { REVIEWED_ON } from "../config";
+import { HOLIDAY_YEAR } from "../lib/holidays";
 
 export function Hero() {
   return (
@@ -9,9 +10,11 @@ export function Hero() {
         </h1>
         <p className="lede">
           Pon lo que quieres que te quede limpio cada mes. La cuenta suma el IRPF, la cuota de autónomos y tus gastos, y
-          lo reparte entre las horas que de verdad puedes facturar.
+          lo reparte entre las horas que de verdad puedes facturar, con los festivos de tu provincia.
         </p>
-        <p className="stamp">Cifras de 2026 · revisadas el {REVIEWED_ON}</p>
+        <p className="stamp">
+          Cuota e IRPF de 2026 · festivos de {HOLIDAY_YEAR} · revisado el {REVIEWED_ON}
+        </p>
       </div>
     </header>
   );

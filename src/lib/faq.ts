@@ -25,6 +25,11 @@ export const FAQS: Faq[] = [
     a: "Porque no todas las horas que trabajas se pueden cobrar. Buscar clientes, hacer presupuestos, facturar, formarte o hacer papeleo también es trabajo y nadie te lo paga. Lo normal es poder facturar entre 25 y 32 horas de cada 40.",
   },
   {
+    id: "festivos",
+    q: "¿Cómo cuenta los festivos?",
+    a: "Con el calendario laboral oficial de 2027: los festivos nacionales y los de tu comunidad que caen de lunes a viernes, más los dos festivos locales de tu ayuntamiento. En Canarias suma también el festivo de tu isla.",
+  },
+  {
     id: "iva",
     q: "¿El precio incluye IVA?",
     a: "No. La tarifa que calcula es la base, sin IVA. Al facturar le sumas el IVA que corresponda (normalmente el 21 %), pero ese dinero no es tuyo: lo ingresas a Hacienda cada trimestre.",

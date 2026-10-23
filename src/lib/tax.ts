@@ -1,3 +1,5 @@
+import { findProvince, holidaysFor, weekdaysInYear, type HolidaySummary } from "./holidays";
+
 // Cifras de 2026.
 // Cuota de autónomos: Orden PJC/297/2026 (BOE-A-2026-7296), art. 18.
 // IRPF: escala estatal del art. 63.1 LIRPF y escala autonómica de la Comunidad de Madrid.
@@ -151,34 +153,56 @@ export interface Plan {
   netMonthly: number;
   expensesMonthly: number;
   billableHoursWeek: number;
-  weeksOff: number;
-  region: Region;
+  vacationWeeks: number;
+  province: string;
   flatRate: boolean;
 }
 
 export interface Quote extends YearResult {
+  workingDays: number;
+  holidays: HolidaySummary;
   billableHours: number;
   hourly: number;
   daily: number;
 }
 
-export const WEEKS_PER_YEAR = 52;
 export const HOURS_PER_DAY = 8;
 
-export function billableHoursPerYear(p: Pick<Plan, "billableHoursWeek" | "weeksOff">): number {
-  return Math.max(1, p.billableHoursWeek * (WEEKS_PER_YEAR - p.weeksOff));
+// Solo Madrid tiene su escala autonómica cargada; el resto usa la aproximación.
+export function regionOf(provinceId: string): Region {
+  return findProvince(provinceId).community === "madrid" ? "madrid" : "other";
+}
+
+function settingsOf(p: Plan): Settings {
+  return { expensesMonthly: p.expensesMonthly, region: regionOf(p.province), flatRate: p.flatRate };
+}
+
+// Días que de verdad trabajas: lunes a viernes, menos festivos entre semana y vacaciones.
+export function workingDays(p: Pick<Plan, "vacationWeeks" | "province">): number {
+  return Math.max(1, weekdaysInYear() - holidaysFor(p.province).total - p.vacationWeeks * 5);
+}
+
+export function billableHoursPerYear(p: Pick<Plan, "billableHoursWeek" | "vacationWeeks" | "province">): number {
+  return Math.max(1, (workingDays(p) * p.billableHoursWeek) / 5);
 }
 
 export function quote(p: Plan): Quote {
-  const year = revenueForNet(p.netMonthly * 12, p);
+  const year = revenueForNet(p.netMonthly * 12, settingsOf(p));
   const billableHours = billableHoursPerYear(p);
   const hourly = year.revenue / billableHours;
-  return { ...year, billableHours, hourly, daily: hourly * HOURS_PER_DAY };
+  return {
+    ...year,
+    workingDays: workingDays(p),
+    holidays: holidaysFor(p.province),
+    billableHours,
+    hourly,
+    daily: hourly * HOURS_PER_DAY,
+  };
 }
 
-// El camino inverso: si cobro `hourly` €/h, ¿cuánto me queda al mes?
+// El camino inverso: si cobro `hourly` €/h, ¿cuánto me queda al año?
 export function netFromHourly(hourly: number, p: Plan): YearResult {
-  return yearFromRevenue(hourly * billableHoursPerYear(p), p);
+  return yearFromRevenue(hourly * billableHoursPerYear(p), settingsOf(p));
 }
 
 function round2(n: number): number {

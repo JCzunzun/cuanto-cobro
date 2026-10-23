@@ -1,4 +1,5 @@
 import { eur } from "../lib/format";
+import { HOLIDAY_YEAR } from "../lib/holidays";
 import { FLAT_RATE_MONTHLY, monthlySocialSecurity, SS_RATE } from "../lib/tax";
 
 const percent = (n: number) => `${(n * 100).toLocaleString("es-ES", { maximumFractionDigits: 1 })} %`;
@@ -15,8 +16,13 @@ const FIGURES = [
     source: "Ley del IRPF, arts. 30 y 63",
   },
   {
+    term: "Festivos",
+    text: `Los nacionales y los de tu comunidad de ${HOLIDAY_YEAR} que caen entre semana, más los dos locales que fija cada ayuntamiento. Los que caen en fin de semana no restan días.`,
+    source: "BOE de 13 de octubre de 2026",
+  },
+  {
     term: "Comunidad",
-    text: "Para Madrid uso su escala autonómica. Para el resto, la estatal como aproximación: cada comunidad tiene la suya, pero en rentas medias la diferencia es pequeña.",
+    text: "Para Madrid uso su escala autonómica del IRPF. Para el resto, la estatal como aproximación: cada comunidad tiene la suya, pero en rentas medias la diferencia es pequeña. País Vasco y Navarra tienen IRPF foral propio.",
     source: "Escala de la Comunidad de Madrid",
   },
   {

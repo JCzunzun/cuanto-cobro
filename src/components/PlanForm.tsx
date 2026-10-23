@@ -1,4 +1,6 @@
-import type { Plan, Region } from "../lib/tax";
+import { useId } from "react";
+import { COMMUNITIES, HOLIDAY_YEAR, PROVINCES, holidaysFor, type CommunityId } from "../lib/holidays";
+import type { Plan } from "../lib/tax";
 import { Field } from "./Field";
 
 interface Props {
@@ -6,13 +8,26 @@ interface Props {
   onChange: (plan: Plan) => void;
 }
 
-const REGIONS: { value: Region; label: string }[] = [
-  { value: "madrid", label: "Madrid" },
-  { value: "other", label: "Otra comunidad" },
-];
+// Provincias agrupadas por comunidad para que el desplegable se lea de un vistazo.
+const GROUPS = (Object.keys(COMMUNITIES) as CommunityId[])
+  .map((id) => ({ id, name: COMMUNITIES[id].name, provinces: PROVINCES.filter((p) => p.community === id) }))
+  .sort((a, b) => a.name.localeCompare(b.name, "es"));
+
+const dateFormat = new Intl.DateTimeFormat("es-ES", {
+  weekday: "short",
+  day: "numeric",
+  month: "short",
+  timeZone: "UTC",
+});
+const formatDate = (mmdd: string) => {
+  const [m, d] = mmdd.split("-").map(Number);
+  return dateFormat.format(new Date(Date.UTC(HOLIDAY_YEAR, m - 1, d)));
+};
 
 export function PlanForm({ plan, onChange }: Props) {
+  const provinceId = useId();
   const set = <K extends keyof Plan>(key: K, value: Plan[K]) => onChange({ ...plan, [key]: value });
+  const holidays = holidaysFor(plan.province);
 
   return (
     <form className="plan" aria-labelledby="plan-title" onSubmit={(e) => e.preventDefault()}>
@@ -50,33 +65,59 @@ export function PlanForm({ plan, onChange }: Props) {
         unit="h"
       />
       <Field
-        label="Semanas al año sin facturar"
-        hint="Vacaciones, festivos y algún día de baja."
-        value={plan.weeksOff}
-        onChange={(v) => set("weeksOff", Math.min(51, v))}
+        label="Semanas de vacaciones"
+        hint="Cuenta también algún día de baja o imprevisto."
+        value={plan.vacationWeeks}
+        onChange={(v) => set("vacationWeeks", Math.min(40, v))}
         min={0}
-        max={12}
+        max={10}
         step={1}
         unit="sem."
       />
 
-      <fieldset className="field choice">
-        <legend>Domicilio fiscal</legend>
-        <div className="segmented">
-          {REGIONS.map((r) => (
-            <label key={r.value}>
-              <input
-                type="radio"
-                name="region"
-                value={r.value}
-                checked={plan.region === r.value}
-                onChange={() => set("region", r.value)}
-              />
-              <span>{r.label}</span>
-            </label>
-          ))}
+      <div className="field province">
+        <div className="field-text">
+          <label htmlFor={provinceId}>Provincia</label>
+          <p className="field-hint">Para los festivos y la escala del IRPF.</p>
         </div>
-      </fieldset>
+        <span className="select">
+          <select id={provinceId} value={plan.province} onChange={(e) => set("province", e.target.value)}>
+            {GROUPS.map((g) => (
+              <optgroup key={g.id} label={g.name}>
+                {g.provinces.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.name}
+                  </option>
+                ))}
+              </optgroup>
+            ))}
+          </select>
+        </span>
+        <details className="holidays">
+          <summary>
+            <strong>{holidays.total} festivos</strong> entre semana en {HOLIDAY_YEAR}
+          </summary>
+          <ul>
+            {holidays.weekdayHolidays.map((h) => (
+              <li key={h.date}>
+                <span>{formatDate(h.date)}</span>
+                {h.name}
+              </li>
+            ))}
+            {holidays.extra > 0 && (
+              <li>
+                <span>+{holidays.extra}</span>
+                {holidays.community.extra?.note}
+              </li>
+            )}
+            <li>
+              <span>+{holidays.local}</span>
+              festivos locales de tu ayuntamiento
+            </li>
+          </ul>
+          <p>Los que caen en sábado o domingo no se cuentan: ese día no ibas a facturar igualmente.</p>
+        </details>
+      </div>
 
       <label className="field toggle">
         <span className="field-text">

@@ -63,7 +63,10 @@ export function Ledger({ plan, quote }: { plan: Plan; quote: Quote }) {
               ÷
             </span>
             Horas que facturas
-            <small>{num(quote.billableHours)} al año</small>
+            <small>
+              {num(quote.billableHours)} al año en {quote.workingDays} días de trabajo ({quote.holidays.total} festivos
+              y {plan.vacationWeeks * 5} de vacaciones fuera)
+            </small>
           </dt>
           <dd>{num(monthlyHours)} h</dd>
         </div>

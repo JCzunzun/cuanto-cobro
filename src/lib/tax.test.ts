@@ -10,12 +10,14 @@ import {
   type Plan,
 } from "./tax";
 
+const settings = { expensesMonthly: 150, region: "madrid" as const, flatRate: false };
+
 const plan: Plan = {
   netMonthly: 2000,
   expensesMonthly: 150,
   billableHoursWeek: 30,
-  weeksOff: 6,
-  region: "madrid",
+  vacationWeeks: 4,
+  province: "madrid",
   flatRate: false,
 };
 
@@ -54,22 +56,24 @@ describe("cuota de autónomos", () => {
 
 describe("facturación necesaria", () => {
   it("cuadra: lo que queda es lo que se pidió", () => {
-    const year = revenueForNet(24000, plan);
+    const year = revenueForNet(24000, settings);
     expect(year.net).toBeGreaterThanOrEqual(24000);
     expect(year.net).toBeLessThan(24010);
     expect(year.revenue - year.expenses - year.socialSecurity - year.incomeTax).toBeCloseTo(year.net);
   });
 
   it("la tarifa plana reduce lo que hay que facturar", () => {
-    const normal = revenueForNet(24000, plan).revenue;
-    const flat = revenueForNet(24000, { ...plan, flatRate: true }).revenue;
+    const normal = revenueForNet(24000, settings).revenue;
+    const flat = revenueForNet(24000, { ...settings, flatRate: true }).revenue;
     expect(flat).toBeLessThan(normal);
   });
 
   it("reparte la facturación entre las horas facturables", () => {
     const q = quote(plan);
-    expect(q.billableHours).toBe(30 * 46);
-    expect(q.hourly).toBeCloseTo(q.revenue / 1380);
+    // 2027 en Madrid: 261 días de lunes a viernes - 12 festivos (10 entre semana + 2 locales) - 20 de vacaciones.
+    expect(q.workingDays).toBe(229);
+    expect(q.billableHours).toBeCloseTo(229 * 6);
+    expect(q.hourly).toBeCloseTo(q.revenue / (229 * 6));
     expect(q.daily).toBeCloseTo(q.hourly * 8);
   });
 
